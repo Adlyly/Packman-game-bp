@@ -310,11 +310,14 @@ void DelteAccount(Main ** phead , FILE * fp , int playerID){
 void Game(Main *phead , int playerID , FILE * fp){
 
     Main * ptmp=phead;
-    int Ghostnum , Pillnum , tmp , tmpPack , tmpmove , wholeScore , xPack  , yPack , flag =0 , tmpGhost , flag2=0 , x , y , xtmp;
+    int Ghostnum , Pillnum , tmp , tmpPack , tmpmove , wholeScore , xPack  , yPack , flag =0 , tmpGhost , flag2=0 , x , y , xtmp , pilltmp ;
     char strPlay[20][20] , ctmp , ctmp1 , ctmpove , ch;
     FILE * fpmap;
     GhostMain * pheadG=NULL , * ptmpG;
 
+    //flag : use to see if we find the packman in the map or not.
+    //flag2 : use to see if the game is an uncomplete game or not (for the score).
+    
     fpmap=fopen("MyMap.bin" , "r+b");
     if(fpmap==NULL){
         printf("file cannot be opened.\n");
@@ -343,6 +346,8 @@ void Game(Main *phead , int playerID , FILE * fp){
             (*ptmp).Player.condition=1;
             for(int i=0 ; i<20 ; i++)
             strcpy(strPlay[i] , (* ptmp).Player.map[i]);
+            flag2=1;
+            pilltmp=(*ptmp).Player.score;
 
         }
         else {
@@ -459,7 +464,11 @@ void Game(Main *phead , int playerID , FILE * fp){
     printf("\n                                                 ");
     printf("User Name : %s\n" , (* ptmp).Player.name);
     printf("                                                   ");
+    if(flag2)
+    printf("User Score : %d\n\n" ,((*ptmp).Player.score + pilltmp));
+    else
     printf("User Score : %d\n\n" , (*ptmp).Player.score);
+
 
     x=4 , y=33 ;
     CursorMove(y , x);
@@ -581,48 +590,51 @@ void Game(Main *phead , int playerID , FILE * fp){
         printf("\n                                                 ");
         printf("User Name : %s\n" , (* ptmp).Player.name);
         printf("                                                   ");
+        if(flag2)
+        printf("User Score : %d\n\n" ,((*ptmp).Player.score + pilltmp));
+        else
         printf("User Score : %d\n\n" , (*ptmp).Player.score);
 
         
-    x=4 , y=33;
-    CursorMove(y , x);
-    for(int i=0 ; strPlay[i][0]!='\0'; i++){
-        for(int j=0 ; strPlay[i][j]!='\0' ; j++){
-            if(strPlay[i][j]=='G'){
-                printf(RED);
-                printf("\u2022\u0060O\u00B4\u2022");
-                y+=5;
-            }
-            else if(strPlay[i][j]=='P'){
-                y+=5;
-                printf(GREEN);
-                printf("  \u2665  ");
-            }
-            else if(strPlay[i][j]=='@'){
-                printf(YELLOW);
-                printf(" ^\u1D25^ ");
-                y+=5;
-            }
-            else if(strPlay[i][j]=='|'|| strPlay[i][j]=='-'){
-                printf(BLUE);
-                printf("\u2022\u2022\u2022\u2022\u2022");
-                xtmp=x;
-                xtmp++;
-                CursorMove(y,xtmp);
-                printf("\u2022\u2022\u2022\u2022\u2022");
+        x=4 , y=33;
+        CursorMove(y , x);
+        for(int i=0 ; strPlay[i][0]!='\0'; i++){
+            for(int j=0 ; strPlay[i][j]!='\0' ; j++){
+                if(strPlay[i][j]=='G'){
+                    printf(RED);
+                    printf("\u2022\u0060O\u00B4\u2022");
+                    y+=5;
+                }
+                else if(strPlay[i][j]=='P'){
+                    y+=5;
+                    printf(GREEN);
+                    printf("  \u2665  ");
+                }
+                else if(strPlay[i][j]=='@'){
+                    printf(YELLOW);
+                    printf(" ^\u1D25^ ");
+                    y+=5;
+                }
+                else if(strPlay[i][j]=='|'|| strPlay[i][j]=='-'){
+                    printf(BLUE);
+                    printf("\u2022\u2022\u2022\u2022\u2022");
+                    xtmp=x;
+                    xtmp++;
+                    CursorMove(y,xtmp);
+                    printf("\u2022\u2022\u2022\u2022\u2022");
         
-                y+=5;
-                CursorMove(y , x);
+                    y+=5;
+                    CursorMove(y , x);
+                }
+                else if(strPlay[i][j]=='.'){
+                    printf("     ");
+                    y+=5;
+                }
             }
-            else if(strPlay[i][j]=='.'){
-                printf("     ");
-                y+=5;
-            }
-    }
-    x+=2;
-    y=33;
-    CursorMove(y , x);
-    }
+            x+=2;
+            y=33;
+            CursorMove(y , x);
+        }
         printf("\n                                   ");
         printf(YELLOW);
         printf("Whenever you want to stop yor game , Please enter p.\n");
@@ -754,6 +766,7 @@ GhostMain * GhostMake(GhostMain * phead , char str[20][20]){
     GhostMain * ptmp = phead , * pnew ;
     static int counter=1;
     int x , y , i , j , flag =0;
+    //flag : use to see if we reach to wanted ghost or not
 
     while(ptmp){
         if(ptmp->pnext)
